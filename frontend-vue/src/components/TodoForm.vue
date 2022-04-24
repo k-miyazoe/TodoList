@@ -1,0 +1,195 @@
+<template>
+  <div>
+    <v-app>
+      <!--list nothing-->
+      <div v-if="!todos[0]" class="mt-3">
+        <v-container>
+          <v-row justify="center" align-content="center">
+            <v-col md="7">
+              <img
+                src="@/assets/well_done.jpeg"
+                alt="well done"
+                width="90%"
+                height="auto"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+
+        <p class="text-h5">タスクはありません</p>
+        <p class="text-caption">
+          タスクは下から追加できます
+          <v-icon>mdi-arrow-down-thick</v-icon>
+        </p>
+      </div>
+      <!--todo list-->
+      <div v-for="(item, key) in todos" :key="key">
+        <li>
+          <span
+            style="text-decoration: line-through; color: red"
+            v-if="item.done"
+            v-on:click="changeStatus(item)"
+          >
+            {{ item.task }}
+          </span>
+          <span v-else v-on:click="changeStatus(item)">
+            {{ item.task }} {{ item.due }}
+          </span>
+          <v-btn icon color="error" @click="delete_task(item)">
+            <v-icon>mdi-close-circle</v-icon>
+          </v-btn>
+        </li>
+        <hr />
+      </div>
+      <!--todo form-->
+      <v-form ref="form" v-model="valid" lazy-validation>
+        <v-container>
+          <v-row>
+            <v-col cols="12" sm="6" md="3">
+              <!--タスクと期日-->
+              <v-text-field
+                v-model="new_task"
+                label="Task"
+                v-on:keydown.enter="addTask"
+                required
+              ></v-text-field>
+              <template>
+                <v-row justify="space-around">
+                  <v-date-picker
+                    v-model="picker"
+                    color="green lighten-1"
+                  ></v-date-picker>
+                </v-row>
+              </template>
+              <v-btn
+                :disabled="!valid"
+                color="success"
+                class="mr-4"
+                @click="addTask"
+                >Add Task</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-form>
+    </v-app>
+  </div>
+</template>
+
+
+<script>
+/* eslint-disable */
+import axios from "axios";
+import Cookies from "js-cookie";
+
+export default {
+  data: () => ({
+    //todos: [],
+    new_task: "",
+    its_due: "",
+    tasks: "",
+    todos: [],
+    valid: true,
+    picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+      .toISOString()
+      .substr(0, 10),
+  }),
+
+  mounted() {
+    this.getTask();
+    this.checkLoggedIn();
+  },
+
+  methods: {
+    checkLoggedIn() {
+      this.$session.start();
+      if (!this.$session.has("token")) {
+        router.push("/auth");
+      }
+    },
+    getTask() {
+      console.log("get");
+      axios
+        .get(process.env.VUE_APP_API_URL + "/api/get/")
+        .then((res) => {
+          console.log(res.data);
+          this.todos = res.data;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    addTask() {
+      console.log("add");
+      if (this.new_task && this.picker) {
+        var task_object = {
+          task: "",
+          due: "",
+          done: false,
+        };
+        task_object["task"] = this.new_task;
+        task_object["due"] = this.picker;
+        this.todos.push(task_object);
+        this.updateDB(task_object);
+      }
+      //elseで入力されてないerror表示書いてもいい
+      this.new_task = "";
+    },
+    changeStatus(item) {
+      console.log("update");
+      item.done = !item.done;
+      this.updateDB(item);
+    },
+    updateDB(task) {
+      axios
+        .post(process.env.VUE_APP_API_URL + "/api/post/", task)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    delete_task(task) {
+      console.log("New Delete function");
+      URL = process.env.VUE_APP_API_URL + "/api/";
+      this.sendRequest(URL + "get/", "get");
+      this.sendRequest(URL + "delete/", "delete", JSON.stringify(task));
+      this.getTask();
+    },
+    sendRequest(url, method, data) {
+      //headerがどうのこうの
+      const csrftoken = Cookies.get("csrftoken");
+      const myHeaders = new Headers({
+        "Content-Type": "application/json",
+      });
+      //リクエストがget以外
+      if (method !== "get") {
+        myHeaders.set("X-CSRFToken", csrftoken);
+      }
+      fetch(url, {
+        method: method,
+        headers: myHeaders,
+        body: data,
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((response) => {
+          if (method == "get") {
+            this.tasks = response;
+          }
+        })
+        .catch((error) => {
+          console.error(
+            "There has been a problem with your fetch operation:",
+            error
+          );
+        });
+    },
+    test() {
+      console.log("enter");
+    },
+  },
+};
+</script>
