@@ -102,6 +102,18 @@ DATABASES = {
     'default': env.db(),
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'todolist',
+#         'USER': 'root',
+#         'PASSWORD': 'q2pvlwg8',
+#         'HOST': 'mysql',
+#         'PORT': 3306
+#     }
+# }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

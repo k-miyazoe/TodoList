@@ -65,13 +65,14 @@
                 :disabled="!valid"
                 color="success"
                 class="mr-4"
-                @click="addTask"
+                @click="post_task"
                 >Add Task</v-btn
               >
             </v-col>
           </v-row>
         </v-container>
       </v-form>
+      <button @click="test">Log</button>
     </v-app>
   </div>
 </template>
@@ -81,14 +82,16 @@
 /* eslint-disable */
 import axios from "axios";
 import Cookies from "js-cookie";
+import header from "/src/js/axios";
+//./js/axios
 
 export default {
   data: () => ({
-    //todos: [],
     new_task: "",
     its_due: "",
     tasks: "",
     todos: [],
+    axios: {},
     valid: true,
     picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -96,8 +99,9 @@ export default {
   }),
 
   mounted() {
-    this.getTask();
     this.checkLoggedIn();
+    this.init_axios_header();
+    this.get_task();
   },
 
   methods: {
@@ -106,18 +110,6 @@ export default {
       if (!this.$session.has("token")) {
         router.push("/auth");
       }
-    },
-    getTask() {
-      console.log("get");
-      axios
-        .get(process.env.VUE_APP_API_URL + "/api/get/")
-        .then((res) => {
-          console.log(res.data);
-          this.todos = res.data;
-        })
-        .catch((e) => {
-          console.log(e);
-        });
     },
     addTask() {
       console.log("add");
@@ -188,7 +180,67 @@ export default {
         });
     },
     test() {
-      console.log("enter");
+      //console.log("enter");
+      console.log("export test", header.set_header());
+    },
+
+    //シリアライザー
+    get_task() {
+      this.axios
+        .get("/api/todo/")
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    //現在badリクエスト
+    post_task() {
+      let task_object = this.init_task();
+      this.axios
+        .post("/api/todo/", task_object)
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    put_task(parameter) {
+      this.axios
+        .put("/api/todo/" + parameter)
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    delete_task(parameter) {
+      this.axios
+        .delete("/api/todo/" + parameter)
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    init_axios_header() {
+      let jwt_info = `JWT ` + this.$session.get("token");
+      this.axios = header.set_header(jwt_info);
+    },
+    init_task() {
+      var task_object = {
+        task: "",
+        due: "",
+        done: false,
+      };
+      task_object["task"] = this.new_task;
+      task_object["due"] = this.picker;
+      return task_object;
     },
   },
 };

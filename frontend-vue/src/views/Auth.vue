@@ -91,7 +91,7 @@ export default {
             this.$session.start();
             this.$session.set("token", res.data.token);
             console.log(res);
-            router.push("/question");
+            router.push("/todoform");
           })
           .catch((e) => {
             this.loading = false;
@@ -110,7 +110,7 @@ export default {
     checkToken() {
       this.$session.start();
       if (this.$session.has("token")) {
-        router.push("/question");
+        router.push("/todoform");
       }
     },
   },

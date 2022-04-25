@@ -2,6 +2,7 @@
 node_modules/
 /dist
 db/
+env_files/
 *.env
 
 
