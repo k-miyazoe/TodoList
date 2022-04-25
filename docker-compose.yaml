@@ -6,18 +6,20 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.front
-    container_name: asyncomm-frontend-vue
+    container_name: todolist-frontend-vue
     ports:
       - 8080:8080
     volumes:
       - ./frontend-vue:/app/
+    env_file:
+      - ./env_files/front.env
 
   api:
     tty: true
     build:
       context: .
       dockerfile: ./Dockerfile.api
-    container_name: asycomm-backend-django
+    container_name: todolist-backend-django
     ports:
       - 8000:8000
     volumes:
@@ -31,9 +33,9 @@ services:
   mysql:
     build:
       context: .
-      dockerfile: ./Dockerfile.data #Dockerfileからビルドすることを示す
-    image: asyncomm-mysql
-    container_name: asyncomm-database-mysql
+      dockerfile: ./Dockerfile.data
+    image: todolist-mysql
+    container_name: todolist-database-mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 1s
@@ -45,10 +47,11 @@ services:
     ports:
       - 3306:3306
     env_file:
-      - db_pass.env
+      - ./env_files/db_pass.env
     environment:
-      MYSQL_ROOT_PASSWORD: DB_PASSWORD #コンテナ内のMySQLを起動する際のパスワードを設定
-      MYSQL_DATABASE: asyncomm
+      #MYSQL_ROOT_PASSWORD: asdf
+      #コンテナ内のMySQLを起動する際のパスワードを設定
+      MYSQL_DATABASE: todolist
   # ssh:
   #   build: 
   #     context: .

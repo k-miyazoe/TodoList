@@ -6,7 +6,7 @@ from django.http import JsonResponse, HttpResponseServerError
 from rest_framework import generics, permissions
 from django.contrib.auth.models import User
 from .models import Todo,UserProfile
-from .serializers import UserSerializer,UserProfileSerializer
+from .serializers import UserSerializer,UserProfileSerializer,TodoSerializer
 from rest_framework import viewsets
 from django.utils.decorators import method_decorator
 
@@ -20,8 +20,7 @@ class UserList(generics.ListAPIView):
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    #permission_classes = (permissions.IsAdminUser, )
+    spermission_classes = (permissions.IsAdminUser, )
 
 #getなら特定のレコード取得,putなら特定のレコード更新
 
@@ -32,7 +31,6 @@ class UserRetrieveUpdate(generics.RetrieveUpdateAPIView):
 
 
 
-#UserProfile
 class UserProfileCreate(generics.ListCreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
@@ -43,8 +41,15 @@ class UserProfileRetrieveUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
+class TodoListCreate(generics.ListCreateAPIView):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
-
+class TodoListRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
 def get_todo(request):
     todos = Todo.objects.all().order_by("due").values()

@@ -51,6 +51,9 @@
 /* eslint-disable */
 import Axios from "axios";
 import Cookies from "js-cookie";
+//env_files/front.env
+//const ENV_PATH = path.join(__dirname, ".env");
+//require("dotenv").config({ path: ENV_PATH });
 
 export default {
   data: () => ({
@@ -75,9 +78,9 @@ export default {
   }),
   methods: {
     log_test() {
-      // console.log("env_0", process.env);
-      // console.log("env", process.env.VUE_APP_API_URL);
-      console.log("jwt", this.$session.get("token"));
+      console.log("env_0", process.env);
+      console.log("env", process.env.VUE_APP_API_URL);
+      //console.log("jwt", this.$session.get("token"));
     },
     get_Userdata(parameter) {
       const axios = Axios.create({

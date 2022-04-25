@@ -20,5 +20,7 @@ urlpatterns = [
 
     path('profile/', UserProfileCreate.as_view()),
     path('profile/<pk>', UserProfileRetrieveUpdate.as_view()),
-    
+
+    path('todo/', TodoListCreate.as_view()),
+    path('todo/<pk>', TodoListRetrieveUpdateDestroy.as_view()),
 ]
