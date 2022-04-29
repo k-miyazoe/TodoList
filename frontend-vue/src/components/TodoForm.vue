@@ -111,73 +111,10 @@ export default {
         router.push("/auth");
       }
     },
-    addTask() {
-      console.log("add");
-      if (this.new_task && this.picker) {
-        var task_object = {
-          task: "",
-          due: "",
-          done: false,
-        };
-        task_object["task"] = this.new_task;
-        task_object["due"] = this.picker;
-        this.todos.push(task_object);
-        this.updateDB(task_object);
-      }
-      //elseで入力されてないerror表示書いてもいい
-      this.new_task = "";
-    },
     changeStatus(item) {
       console.log("update");
       item.done = !item.done;
       this.updateDB(item);
-    },
-    updateDB(task) {
-      axios
-        .post(process.env.VUE_APP_API_URL + "/api/post/", task)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
-    delete_task(task) {
-      console.log("New Delete function");
-      URL = process.env.VUE_APP_API_URL + "/api/";
-      this.sendRequest(URL + "get/", "get");
-      this.sendRequest(URL + "delete/", "delete", JSON.stringify(task));
-      this.getTask();
-    },
-    sendRequest(url, method, data) {
-      //headerがどうのこうの
-      const csrftoken = Cookies.get("csrftoken");
-      const myHeaders = new Headers({
-        "Content-Type": "application/json",
-      });
-      //リクエストがget以外
-      if (method !== "get") {
-        myHeaders.set("X-CSRFToken", csrftoken);
-      }
-      fetch(url, {
-        method: method,
-        headers: myHeaders,
-        body: data,
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((response) => {
-          if (method == "get") {
-            this.tasks = response;
-          }
-        })
-        .catch((error) => {
-          console.error(
-            "There has been a problem with your fetch operation:",
-            error
-          );
-        });
     },
     test() {
       //console.log("enter");
@@ -190,6 +127,7 @@ export default {
         .get("/api/todo/")
         .then((res) => {
           console.log(res.data);
+          this.todos = res.data;
         })
         .catch((e) => {
           console.log(e);
@@ -206,10 +144,18 @@ export default {
         .catch((e) => {
           console.log(e);
         });
+      this.get_task();
     },
+
+    //template編集
+    //タスクのデザイン変更
     put_task(parameter) {
+      //task_object done更新
+      //putのobjectの一部更新のベストプラクティス
+      update_task_object = this.init_task();
+      update_task_object["done"] = true;
       this.axios
-        .put("/api/todo/" + parameter)
+        .put("/api/todo/" + parameter, this.task_object)
         .then((res) => {
           console.log(res.data);
         })
@@ -217,6 +163,7 @@ export default {
           console.log(e);
         });
     },
+    //template編集
     delete_task(parameter) {
       this.axios
         .delete("/api/todo/" + parameter)
@@ -231,6 +178,7 @@ export default {
     init_axios_header() {
       let jwt_info = `JWT ` + this.$session.get("token");
       this.axios = header.set_header(jwt_info);
+      //console.log("axios header", this.axios);
     },
     init_task() {
       var task_object = {
@@ -239,7 +187,7 @@ export default {
         done: false,
       };
       task_object["task"] = this.new_task;
-      task_object["due"] = this.picker;
+      task_object["due"] = this.picker + " 01:01:01";
       return task_object;
     },
   },
