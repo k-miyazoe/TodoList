@@ -49,7 +49,6 @@ class Todo(models.Model):
     task = models.CharField(max_length=255, unique=True)
     due = models.DateTimeField()
     done = models.BooleanField()
-    #uid,id
 
     def __str__(self):
         return self.task
